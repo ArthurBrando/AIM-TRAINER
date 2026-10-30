@@ -1,145 +1,193 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>AIM LAB — Arms Studio</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#080d12">
+<title>AIM TRAINER — FPS Training Lab</title>
 <style>
-:root{color-scheme:dark;--bg:#080b0d;--panel:#101619;--panel2:#151e21;--line:#263438;--green:#7cffb2;--muted:#8da09d;--white:#eef8f3}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--white);font:14px system-ui,Arial,sans-serif}
-header{padding:18px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;gap:12px}
-.logo{font-weight:900;letter-spacing:2px}.logo span{color:var(--green)}.sub{color:var(--muted);font-size:11px;margin-top:3px}
-main{max-width:1150px;margin:auto;padding:14px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(290px,.85fr);gap:14px}
-.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;overflow:hidden}.panelHead{padding:13px 14px;border-bottom:1px solid var(--line);font-weight:800;letter-spacing:.7px;display:flex;justify-content:space-between;align-items:center}
-#viewport{height:440px;position:relative;background:radial-gradient(ellipse at center,#1c292b,#090e10 72%);touch-action:none}
-#viewport canvas{display:block;width:100%;height:100%}.hint{position:absolute;bottom:10px;left:12px;color:#9eb2ad;font-size:11px;background:#071012bb;padding:6px 9px;border-radius:7px;pointer-events:none}
-.controls{padding:14px;display:grid;gap:14px}.sectionTitle{font-size:11px;color:var(--green);font-weight:900;letter-spacing:1.4px;margin-bottom:8px}
-.axis{display:grid;grid-template-columns:1fr auto auto auto;align-items:center;gap:7px;margin:7px 0}.axis label{font-weight:700}.value{min-width:65px;text-align:center;color:var(--green);font-variant-numeric:tabular-nums;background:#071012;padding:7px;border-radius:7px}
-button,.fileLabel{background:var(--panel2);border:1px solid var(--line);color:var(--white);border-radius:8px;padding:9px 12px;font-weight:700;cursor:pointer}
-button:active,.fileLabel:active{transform:scale(.97)}button.primary{background:var(--green);color:#06100b;border-color:var(--green)}button.small{min-width:36px;padding:8px 10px;font-size:16px}button:disabled{opacity:.4;cursor:not-allowed}
-.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.row button{flex:1}.fileLabel input{display:none}
-select,input[type=number]{background:#071012;color:var(--white);border:1px solid var(--line);border-radius:8px;padding:10px;width:100%}
-textarea{width:100%;min-height:120px;resize:vertical;background:#070c0e;color:#b9fbd3;border:1px solid var(--line);border-radius:9px;padding:11px;font:12px ui-monospace,monospace}
-.status{font-size:12px;color:var(--muted);line-height:1.5}.status.ok{color:var(--green)}.block{padding:13px 14px;border-bottom:1px solid var(--line)}.block:last-child{border-bottom:0}
-.animList{max-height:180px;overflow:auto;display:grid;gap:6px;margin-top:9px}.animItem{padding:8px 10px;background:#0a1113;border:1px solid var(--line);border-radius:7px;font-size:12px;overflow-wrap:anywhere}
-.animItem button{float:right;padding:4px 7px;font-size:11px}
-footer{max-width:1150px;margin:0 auto;padding:0 14px 22px;color:var(--muted);font-size:11px}
-@media(max-width:800px){main{grid-template-columns:1fr;padding:9px;gap:10px}#viewport{height:340px}header{padding:14px}.axis{grid-template-columns:1fr auto auto auto}}
+:root{--bg:#080d12;--panel:rgba(12,19,25,.92);--line:rgba(151,190,202,.16);--text:#edf7fa;--muted:#8ca2ad;--cyan:#5de4d0;--blue:#5ca9ff;--red:#ff5d70;--gold:#ffd477}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;overscroll-behavior:none}
+button,select{font:inherit}button{color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+#game{position:fixed;inset:0;background:#080d12}#view{position:absolute;inset:0;touch-action:none;display:block}
+#view canvas{width:100%;height:100%;display:block}
+.topbar{position:absolute;top:0;left:0;right:0;padding:calc(env(safe-area-inset-top) + 12px) 16px 12px;display:flex;justify-content:space-between;align-items:flex-start;pointer-events:none;gap:10px}
+.brand{font-size:13px;letter-spacing:2.8px;font-weight:950}.brand b{color:var(--cyan)}.tag{font-size:9px;letter-spacing:1.7px;color:var(--muted);margin-top:4px}
+.stats{display:flex;gap:7px}.stat{min-width:68px;padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:rgba(7,13,18,.68);backdrop-filter:blur(12px);text-align:center}.stat small{display:block;color:var(--muted);font-size:8px;letter-spacing:1.5px;font-weight:800}.stat strong{font-size:17px;font-variant-numeric:tabular-nums}
+#crosshair{position:absolute;left:50%;top:50%;width:24px;height:24px;transform:translate(-50%,-50%);pointer-events:none;filter:drop-shadow(0 1px 2px #000)}
+#crosshair:before,#crosshair:after{content:"";position:absolute;background:#e8ffff;border-radius:2px;box-shadow:0 0 6px rgba(93,228,208,.65)}
+#crosshair:before{width:2px;height:22px;left:11px;top:1px}#crosshair:after{height:2px;width:22px;left:1px;top:11px}
+#crosshair i{position:absolute;width:4px;height:4px;border:1px solid var(--cyan);border-radius:50%;left:10px;top:10px}
+#hitmarker{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%) scale(.6);opacity:0;pointer-events:none;font-size:34px;font-weight:300;color:white;text-shadow:0 0 12px var(--cyan);transition:opacity .08s,transform .08s}
+#hitmarker.show{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.bottomHud{position:absolute;left:0;right:0;bottom:0;padding:12px 16px calc(env(safe-area-inset-bottom) + 14px);display:flex;align-items:flex-end;justify-content:space-between;gap:12px;pointer-events:none}
+.hudGroup{display:flex;gap:8px;align-items:flex-end;pointer-events:auto}.hudBtn{width:58px;height:58px;border-radius:17px;border:1px solid rgba(171,208,218,.24);background:rgba(10,19,26,.82);backdrop-filter:blur(12px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;box-shadow:0 8px 24px #0005;touch-action:manipulation}
+.hudBtn svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}.hudBtn span{font-size:8px;letter-spacing:1px;color:#b6c8ce;font-weight:850}.hudBtn.fire{width:76px;height:76px;border-radius:23px;border-color:rgba(93,228,208,.55);background:linear-gradient(145deg,rgba(24,80,78,.94),rgba(9,34,42,.94));color:var(--cyan)}.hudBtn.fire svg{width:29px;height:29px}.hudBtn.active{border-color:var(--cyan);color:var(--cyan)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;backdrop-filter:blur(18px);box-shadow:0 18px 60px #0008}
+#menu{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:18px;background:radial-gradient(ellipse at 50% 38%,rgba(15,39,46,.38),rgba(3,7,11,.84));}
+.menuCard{width:min(520px,100%);padding:23px}.eyebrow{font-size:9px;letter-spacing:2.4px;color:var(--cyan);font-weight:900}.menuTitle{font-size:clamp(30px,8vw,48px);line-height:1;font-weight:950;letter-spacing:-2px;margin:9px 0}.menuTitle span{color:var(--cyan)}.desc{font-size:12px;line-height:1.6;color:var(--muted);max-width:410px}
+.fieldLabel{display:block;margin:18px 0 7px;color:#a9bbc2;font-size:9px;font-weight:900;letter-spacing:1.6px}
+select{width:100%;background:#0a1218;border:1px solid var(--line);border-radius:10px;color:var(--text);padding:12px;outline:none}
+.modeGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.modeCard{text-align:left;background:#0b141b;border:1px solid var(--line);border-radius:11px;padding:11px;min-height:68px}.modeCard strong{display:block;font-size:11px}.modeCard small{display:block;color:var(--muted);font-size:9px;margin-top:4px;line-height:1.4}.modeCard.selected{border-color:var(--cyan);background:rgba(25,75,76,.28)}
+.primary{width:100%;border:0;border-radius:11px;padding:14px;margin-top:15px;background:linear-gradient(100deg,#67ead2,#6cbaff);color:#061115;font-weight:950;letter-spacing:1.5px;font-size:11px}
+.secondary{border:1px solid var(--line);border-radius:9px;padding:9px 12px;background:#0b141b;color:#c7d5da;font-size:10px;font-weight:800}
+#result{display:none;position:absolute;inset:0;align-items:center;justify-content:center;padding:18px;background:#03070bc9}
+.resultCard{width:min(400px,100%);padding:22px}.resultCard h2{margin:7px 0 16px;font-size:28px}.resultGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.resultStat{padding:12px;border-radius:10px;background:#0b141b;border:1px solid var(--line)}.resultStat small{display:block;color:var(--muted);font-size:9px;letter-spacing:1px}.resultStat strong{font-size:23px}
+#toast{position:absolute;top:20%;left:50%;transform:translate(-50%,-8px);opacity:0;padding:8px 12px;border-radius:9px;background:#071318;border:1px solid var(--line);color:var(--cyan);font-size:10px;font-weight:900;letter-spacing:1px;pointer-events:none;transition:.16s}#toast.show{opacity:1;transform:translate(-50%,0)}
+#modelInput{display:none}.modelBadge{position:absolute;top:84px;left:16px;pointer-events:none;padding:6px 9px;background:#071218a8;border:1px solid var(--line);border-radius:8px;color:#a9c0c8;font-size:9px;letter-spacing:1px}
+#settings{position:absolute;right:14px;top:84px;pointer-events:auto;display:flex;gap:6px}.iconBtn{border:1px solid var(--line);background:#071218c9;border-radius:9px;padding:8px;color:#c8d9de}.iconBtn svg{width:17px;height:17px;display:block;stroke:currentColor;fill:none;stroke-width:1.7}
+#settingsPanel{display:none;position:absolute;right:14px;top:126px;width:min(270px,calc(100vw - 28px));padding:14px;z-index:5}.settingRow{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0;color:#b9c9ce;font-size:11px}.settingRow input{width:90px;accent-color:var(--cyan)}
+@media(max-width:600px){.topbar{padding-left:12px;padding-right:12px}.stats{gap:5px}.stat{min-width:55px;padding:7px 7px}.stat strong{font-size:15px}.brand{font-size:11px}.tag{font-size:8px}.bottomHud{padding-left:12px;padding-right:12px;gap:6px}.hudBtn{width:49px;height:53px;border-radius:15px}.hudBtn.fire{width:67px;height:67px}.hudGroup{gap:6px}.menuCard{padding:19px}.modelBadge{left:12px;top:78px}}
+@media(orientation:landscape) and (max-height:500px){.bottomHud{padding-bottom:8px}.hudBtn{height:48px;width:52px}.hudBtn.fire{height:58px;width:64px}.topbar{padding-top:8px}.menuCard{max-width:460px;padding:14px}.menuTitle{font-size:30px}.fieldLabel{margin-top:10px}.modeCard{min-height:55px;padding:8px}.primary{margin-top:9px;padding:11px}}
 </style>
 </head>
 <body>
-<header><div><div class="logo">AIM <span>LAB</span> / ARMS STUDIO</div><div class="sub">EDITOR DE MODELO · ANIMAÇÕES · CALIBRAÇÃO FPS</div></div><div class="sub">v0.1</div></header>
-<main>
-<section class="panel">
- <div class="panelHead"><span>VISUALIZAÇÃO 3D</span><span id="modelState" class="status">Nenhum modelo carregado</span></div>
- <div id="viewport"><div class="hint">Visualização frontal · carregue seu arms.glb</div></div>
- <div class="block">
-  <div class="row">
-   <label class="fileLabel">Abrir arms.glb<input id="file" type="file" accept=".glb,.gltf,model/gltf-binary,model/gltf+json"></label>
-   <button id="reset" disabled>Resetar posição</button>
-   <button id="gridBtn">Grade: ON</button>
+<div id="game">
+ <div id="view"></div>
+ <div class="topbar">
+  <div><div class="brand">AIM <b>TRAINER</b></div><div class="tag">FPS PERFORMANCE LAB</div></div>
+  <div class="stats">
+   <div class="stat"><small>SCORE</small><strong id="score">0000</strong></div>
+   <div class="stat"><small>ACCURACY</small><strong id="accuracy">100%</strong></div>
+   <div class="stat"><small>TIME</small><strong id="timer">60</strong></div>
   </div>
-  <p class="status">Dica: o arquivo é aberto localmente no navegador. Para arquivos .gltf com texturas externas, prefira exportar como .glb.</p>
  </div>
- <div class="block">
-  <div class="sectionTitle">ANIMAÇÕES DETECTADAS</div>
-  <div class="row"><select id="animationSelect" disabled><option>Nenhuma animação</option></select><button id="playAnim" disabled>▶ Reproduzir</button><button id="stopAnim" disabled>■ Parar</button></div>
-  <div id="animList" class="animList"><div class="status">Carregue um modelo para listar as animações.</div></div>
-  <div class="row" style="margin-top:10px"><button id="copyAnims" disabled>Copiar nomes das animações</button></div>
+ <div id="crosshair"><i></i></div><div id="hitmarker">×</div>
+ <div class="modelBadge" id="modelBadge">ARMS: NÃO CARREGADO</div>
+ <div id="settings"><button class="iconBtn" id="settingsBtn" aria-label="Configurações"><svg viewBox="0 0 24 24"><path d="M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 0 0 0-7Z"/><path d="m19.4 15 .1.1 1.4 1.1-1.4 2.4-1.7-.7a8 8 0 0 1-1.5.9l-.3 1.8h-2.8l-.3-1.8a8 8 0 0 1-1.5-.9l-1.7.7-1.4-2.4 1.4-1.1a7 7 0 0 1 0-1.8l-1.4-1.1 1.4-2.4 1.7.7a8 8 0 0 1 1.5-.9l.3-1.8h2.8l.3 1.8a8 8 0 0 1 1.5.9l1.7-.7 1.4 2.4-1.4 1.1a7 7 0 0 1 0 1.8Z"/></svg></button></div>
+ <div id="settingsPanel" class="panel">
+  <div class="eyebrow">CONFIGURAÇÕES</div>
+  <div class="settingRow"><label for="sensitivity">Sensibilidade</label><input id="sensitivity" type="range" min=".3" max="2.5" step=".1" value="1"></div>
+  <div class="settingRow"><label for="fov">Campo de visão</label><input id="fov" type="range" min="55" max="100" step="1" value="75"></div>
+  <div class="settingRow"><label for="showArms">Mostrar braços</label><input id="showArms" type="checkbox" checked></div>
+  <button class="secondary" id="loadArms">CARREGAR ARMS.GLB</button><input id="modelInput" type="file" accept=".glb,.gltf">
+  <div class="desc" style="margin-top:9px">Carregue seu modelo localmente. O jogo também funciona sem ele.</div>
  </div>
-</section>
-<aside class="panel">
- <div class="panelHead">AJUSTE DOS BRAÇOS</div>
- <div class="controls">
-  <div>
-   <div class="sectionTitle">POSIÇÃO · MOVIMENTAR</div>
-   <div class="axis"><label>Esquerda / direita (X)</label><button class="small" data-axis="x" data-dir="-1">−</button><div class="value" id="px">0.000</div><button class="small" data-axis="x" data-dir="1">+</button></div>
-   <div class="axis"><label>Cima / baixo (Y)</label><button class="small" data-axis="y" data-dir="1">+</button><div class="value" id="py">0.000</div><button class="small" data-axis="y" data-dir="-1">−</button></div>
-   <div class="axis"><label>Frente / trás (Z)</label><button class="small" data-axis="z" data-dir="-1">Frente</button><div class="value" id="pz">0.000</div><button class="small" data-axis="z" data-dir="1">Trás</button></div>
+ <div class="bottomHud">
+  <div class="hudGroup">
+   <button class="hudBtn" id="reloadBtn" aria-label="Recarregar"><svg viewBox="0 0 24 24"><path d="M20 7v5h-5"/><path d="M19 12a7 7 0 1 1-2-5l3 5"/></svg><span>RELOAD</span></button>
+   <button class="hudBtn" id="pauseBtn" aria-label="Pausar"><svg viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></svg><span>PAUSE</span></button>
   </div>
-  <div>
-   <div class="sectionTitle">ROTAÇÃO · GIRAR</div>
-   <div class="axis"><label>Inclinação (X)</label><button class="small" data-rot="x" data-dir="-1">−</button><div class="value" id="rx">0.0°</div><button class="small" data-rot="x" data-dir="1">+</button></div>
-   <div class="axis"><label>Giro lateral (Y)</label><button class="small" data-rot="y" data-dir="-1">−</button><div class="value" id="ry">0.0°</div><button class="small" data-rot="y" data-dir="1">+</button></div>
-   <div class="axis"><label>Inclinação lateral (Z)</label><button class="small" data-rot="z" data-dir="-1">−</button><div class="value" id="rz">0.0°</div><button class="small" data-rot="z" data-dir="1">+</button></div>
+  <div class="hudGroup">
+   <button class="hudBtn" id="aimBtn" aria-label="Centralizar mira"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="7"/><path d="M12 1v4M12 19v4M1 12h4M19 12h4"/></svg><span>RESET AIM</span></button>
+   <button class="hudBtn fire" id="fireBtn" aria-label="Atirar"><svg viewBox="0 0 24 24"><path d="M3 12h11l3-3h4v6h-4l-3-3"/><path d="M7 9V6h5l2 3M7 15v3h5l2-3"/></svg><span>FIRE</span></button>
   </div>
-  <div>
-   <div class="sectionTitle">PRECISÃO DO AJUSTE</div>
-   <select id="step"><option value="0.01">Fino — 0.01 unidade / 1°</option><option value="0.05" selected>Médio — 0.05 unidade / 5°</option><option value="0.1">Grande — 0.10 unidade / 10°</option></select>
-  </div>
-  <div class="row"><button id="save" class="primary" disabled>Salvar configuração</button><button id="copyConfig" disabled>Copiar JSON</button></div>
-  <div class="status" id="saveStatus">A configuração poderá ser copiada e aplicada depois no jogo.</div>
-  <textarea id="configOutput" spellcheck="false" placeholder="A configuração salva aparecerá aqui..." readonly></textarea>
  </div>
-</aside>
-</main>
-<footer>O editor não envia seu modelo para nenhum servidor. A cena é processada localmente. O ajuste é aplicado ao objeto raiz importado; se o GLB tiver braços separados, ambos serão movidos juntos.</footer>
+ <div id="toast">HIT</div>
+ <div id="menu">
+  <div class="menuCard panel">
+   <div class="eyebrow">TRAINING SIMULATION / 001</div>
+   <div class="menuTitle">AIM <span>TRAINER</span></div>
+   <p class="desc">Treine precisão, velocidade e controle de mira em uma arena de alvos. Escolha um exercício e comece sua sessão.</p>
+   <label class="fieldLabel" for="modeSelect">SELECIONE O MODO DE TREINO</label>
+   <div class="modeGrid" id="modeGrid">
+    <button class="modeCard selected" data-mode="grid"><strong>01 / GRID SHOT</strong><small>Limpe a parede de alvos.</small></button>
+    <button class="modeCard" data-mode="flick"><strong>02 / FLICK</strong><small>Alvos surgem em posições aleatórias.</small></button>
+    <button class="modeCard" data-mode="tracking"><strong>03 / TRACKING</strong><small>Acompanhe um alvo em movimento.</small></button>
+    <button class="modeCard" data-mode="speed"><strong>04 / SPEED TAP</strong><small>Acertos rápidos em sequência.</small></button>
+    <button class="modeCard" data-mode="precision"><strong>05 / PRECISION</strong><small>Alvos menores, maior pontuação.</small></button>
+    <button class="modeCard" data-mode="sixshot"><strong>06 / SIXSHOT</strong><small>Seis alvos por rodada.</small></button>
+   </div>
+   <label class="fieldLabel" for="duration">DURAÇÃO DA SESSÃO</label>
+   <select id="duration"><option value="30">30 segundos</option><option value="60" selected>60 segundos</option><option value="90">90 segundos</option><option value="120">120 segundos</option></select>
+   <button class="primary" id="startBtn">INICIAR TREINAMENTO</button>
+   <div class="desc" style="margin-top:10px;font-size:10px">PC: mouse para mirar e clique para atirar. Celular: arraste a tela para mirar e use FIRE para disparar.</div>
+  </div>
+ </div>
+ <div id="result"><div class="resultCard panel"><div class="eyebrow">SESSION COMPLETE</div><h2>Treino finalizado.</h2><div class="resultGrid"><div class="resultStat"><small>PONTUAÇÃO</small><strong id="rScore">0</strong></div><div class="resultStat"><small>PRECISÃO</small><strong id="rAcc">0%</strong></div><div class="resultStat"><small>ACERTOS</small><strong id="rHits">0</strong></div><div class="resultStat"><small>DISPAROS</small><strong id="rShots">0</strong></div></div><button class="primary" id="againBtn">TREINAR NOVAMENTE</button><button class="secondary" style="width:100%;margin-top:8px" id="menuBtn">VOLTAR AO MENU</button></div></div>
+</div>
 <script type="importmap">
 {"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
 </script>
 <script type="module">
 import * as THREE from 'three';
-import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
 
-const viewport=document.getElementById('viewport');
-const scene=new THREE.Scene();
-scene.background=new THREE.Color(0x0b1113);
-const camera=new THREE.PerspectiveCamera(55,1,0.01,1000);
-camera.position.set(0,0.15,3.2); camera.lookAt(0,0,0);
-const renderer=new THREE.WebGLRenderer({antialias:true,alpha:false});
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-renderer.outputColorSpace=THREE.SRGBColorSpace;
-renderer.toneMapping=THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure=1.15;
-viewport.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0xc9f4e2,0x273139,2));
-const key=new THREE.DirectionalLight(0xffffff,3);key.position.set(2,4,5);scene.add(key);
-const fill=new THREE.DirectionalLight(0x7cffb2,1.2);fill.position.set(-3,1,2);scene.add(fill);
-const grid=new THREE.GridHelper(8,32,0x35524b,0x1b302c);grid.position.y=-1.05;scene.add(grid);
-const axes=new THREE.AxesHelper(.65);axes.position.set(-1.35,-.85,0);scene.add(axes);
-let root=null,mixer=null,actions=[],activeAction=null,animations=[],gridOn=true;
-const loader=new GLTFLoader();
-const values={x:0,y:0,z:0,rx:0,ry:0,rz:0};
 const $=id=>document.getElementById(id);
-function resize(){const w=viewport.clientWidth,h=viewport.clientHeight;camera.aspect=w/h;camera.updateProjectionMatrix();renderer.setSize(w,h,false)}
-new ResizeObserver(resize).observe(viewport);resize();
-function render(){requestAnimationFrame(render);const dt=clock.getDelta();if(mixer)mixer.update(dt);renderer.render(scene,camera)}
-const clock=new THREE.Clock();render();
-function updateUI(){for(const a of ['x','y','z'])$('p'+a).textContent=values[a].toFixed(3);for(const a of ['x','y','z'])$('r'+a).textContent=values['r'+a].toFixed(1)+'°'}
-function applyTransform(){if(!root)return;root.position.set(values.x,values.y,values.z);root.rotation.set(THREE.MathUtils.degToRad(values.rx),THREE.MathUtils.degToRad(values.ry),THREE.MathUtils.degToRad(values.rz));updateUI()}
-function reset(){for(const k in values)values[k]=0;applyTransform()}
-document.querySelectorAll('[data-axis]').forEach(b=>b.addEventListener('click',()=>{if(!root)return;values[b.dataset.axis]+=Number(b.dataset.dir)*Number($('step').value);applyTransform()}));
-document.querySelectorAll('[data-rot]').forEach(b=>b.addEventListener('click',()=>{if(!root)return;const step=Number($('step').value)*100;values['r'+b.dataset.rot]+=Number(b.dataset.dir)*step;applyTransform()}));
-$('reset').onclick=reset;
-$('gridBtn').onclick=()=>{gridOn=!gridOn;grid.visible=gridOn;$('gridBtn').textContent='Grade: '+(gridOn?'ON':'OFF')};
-$('file').addEventListener('change',async e=>{
- const file=e.target.files[0];if(!file)return;
- if(root){scene.remove(root);root=null}if(mixer){mixer.stopAllAction();mixer=null}
- const url=URL.createObjectURL(file);
- $('modelState').textContent='Carregando...';
- try{
-  const gltf=await loader.loadAsync(url);root=new THREE.Group();root.add(gltf.scene);scene.add(root);
-  animations=gltf.animations||[];mixer=animations.length?new THREE.AnimationMixer(gltf.scene):null;
-  actions=[];$('animationSelect').innerHTML='';
-  if(animations.length){
-   animations.forEach((clip,i)=>{const opt=document.createElement('option');opt.value=i;opt.textContent=clip.name||`Animação ${i+1}`;$('animationSelect').appendChild(opt);actions.push(mixer.clipAction(clip))});
-   $('animationSelect').disabled=false;$('playAnim').disabled=false;$('stopAnim').disabled=false;$('copyAnims').disabled=false;
-   $('animList').innerHTML=animations.map((a,i)=>`<div class="animItem"><b>${i+1}.</b> ${escapeHTML(a.name||`Animação ${i+1}`)} <button data-play="${i}">▶</button><div class="status">${a.duration.toFixed(2)}s · ${a.tracks.length} tracks</div></div>`).join('');
-   $('animList').querySelectorAll('[data-play]').forEach(b=>b.onclick=()=>play(Number(b.dataset.play)));
-  }else{$('animationSelect').innerHTML='<option>Sem animações</option>';$('animationSelect').disabled=true;$('playAnim').disabled=true;$('stopAnim').disabled=true;$('copyAnims').disabled=true;$('animList').innerHTML='<div class="status">Nenhuma animação encontrada neste arquivo.</div>'}
-  reset();$('reset').disabled=false;$('save').disabled=false;$('copyConfig').disabled=false;
-  $('modelState').textContent=`${file.name} · ${animations.length} animação(ões)`;$('modelState').className='status ok';
- }catch(err){console.error(err);$('modelState').textContent='Erro ao carregar GLB';alert('Não foi possível carregar o modelo. Confira se o arquivo é um GLB/GLTF válido.')}
- finally{URL.revokeObjectURL(url)}
-});
-function escapeHTML(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function play(i){if(!mixer||!actions[i])return;if(activeAction)activeAction.stop();activeAction=actions[i];activeAction.reset().play();$('animationSelect').value=String(i)}
-$('playAnim').onclick=()=>play(Number($('animationSelect').value));
-$('stopAnim').onclick=()=>{if(activeAction){activeAction.stop();activeAction=null}};
-$('copyAnims').onclick=async()=>{const text=animations.map((a,i)=>`${i+1}. ${a.name||`Animação ${i+1}`}`).join('\n');await navigator.clipboard.writeText(text);$('saveStatus').textContent='Nomes das animações copiados.'};
-function makeConfig(){return {tool:'AIM LAB Arms Studio',version:1,model:'arms.glb',position:{x:values.x,y:values.y,z:values.z},rotationDegrees:{x:values.rx,y:values.ry,z:values.rz},animations:animations.map((a,i)=>({index:i,name:a.name||`Animação ${i+1}`,duration:Number(a.duration.toFixed(3)),tracks:a.tracks.length}))}}
-$('save').onclick=()=>{const json=JSON.stringify(makeConfig(),null,2);$('configOutput').value=json;$('saveStatus').textContent='Configuração salva nesta sessão. Copie o JSON para guardar.'};
-$('copyConfig').onclick=async()=>{if(!$('configOutput').value)$('save').click();try{await navigator.clipboard.writeText($('configOutput').value);$('saveStatus').textContent='JSON copiado! Guarde esse conteúdo para aplicar no jogo.'}catch(e){$('saveStatus').textContent='Selecione e copie o JSON manualmente.'}};
+const host=$('view');
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x0a1117);scene.fog=new THREE.Fog(0x0a1117,18,42);
+const camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.05,100);camera.position.set(0,1.65,5);camera.rotation.order='YXZ';
+const renderer=new THREE.WebGLRenderer({antialias:true,powerPreference:'high-performance'});
+renderer.setPixelRatio(Math.min(devicePixelRatio,1.75));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.15;host.appendChild(renderer.domElement);
+scene.add(new THREE.HemisphereLight(0xa9d5e8,0x17232b,1.8));
+const key=new THREE.DirectionalLight(0xe3f7ff,2.1);key.position.set(-4,8,5);scene.add(key);
+const rim=new THREE.PointLight(0x49d9c8,18,20);rim.position.set(0,5,-7);scene.add(rim);
+const floor=new THREE.Mesh(new THREE.PlaneGeometry(50,50),new THREE.MeshStandardMaterial({color:0x18252d,roughness:.92}));floor.rotation.x=-Math.PI/2;floor.position.y=0;scene.add(floor);
+const ceiling=new THREE.Mesh(new THREE.PlaneGeometry(50,50),new THREE.MeshStandardMaterial({color:0x101a22,roughness:1}));ceiling.rotation.x=Math.PI/2;ceiling.position.y=7;scene.add(ceiling);
+const back=new THREE.Mesh(new THREE.PlaneGeometry(24,12),new THREE.MeshStandardMaterial({color:0x17242c,roughness:.9}));back.position.set(0,3,-9);scene.add(back);
+const wallFrame=new THREE.Group();scene.add(wallFrame);
+const frameMat=new THREE.MeshStandardMaterial({color:0x24343d,metalness:.45,roughness:.55});
+function box(w,h,d,x,y,z,mat){const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);m.position.set(x,y,z);scene.add(m);return m}
+box(24,.22,.35,0,6,-9,frameMat);box(24,.22,.35,0,0,-9,frameMat);box(.22,6,.35,-12,3,-9,frameMat);box(.22,6,.35,12,3,-9,frameMat);
+const sideMat=new THREE.MeshStandardMaterial({color:0x111b22,roughness:.85});
+box(.25,7,28,-12,3.5,1,sideMat);box(.25,7,28,12,3.5,1,sideMat);
+for(let i=0;i<8;i++){const line= new THREE.Mesh(new THREE.BoxGeometry(.018,.018,20),new THREE.MeshBasicMaterial({color:0x29424a}));line.position.set(-10+i*2.85,.015,-2);scene.add(line)}
+const targetGroup=new THREE.Group();scene.add(targetGroup);
+const targets=[];const targetMat=new THREE.MeshStandardMaterial({color:0x5de4d0,emissive:0x0d655b,emissiveIntensity:1.2,metalness:.25,roughness:.3});
+const targetDark=new THREE.MeshStandardMaterial({color:0x18252c,metalness:.4,roughness:.5});
+const targetRing=new THREE.MeshStandardMaterial({color:0xdafefa,emissive:0x2cae9c,emissiveIntensity:.5,metalness:.2,roughness:.3});
+function makeTarget(x,y,z,size=.34){const g=new THREE.Group();const plate=new THREE.Mesh(new THREE.BoxGeometry(size*1.3,size*1.3,.12),targetDark);const disk=new THREE.Mesh(new THREE.CylinderGeometry(size,size,.08,32),targetMat);disk.rotation.x=Math.PI/2;disk.position.z=.09;const ring=new THREE.Mesh(new THREE.TorusGeometry(size*.72,.025,8,32),targetRing);ring.position.z=.14;const dot=new THREE.Mesh(new THREE.CircleGeometry(size*.16,20),new THREE.MeshBasicMaterial({color:0xffffff}));dot.position.z=.145;g.add(plate,disk,ring,dot);g.position.set(x,y,z);g.userData={active:false,size,baseY:y,kind:'target'};targetGroup.add(g);targets.push(g);return g}
+const gridTargets=[];
+for(let row=0;row<5;row++)for(let col=0;col<9;col++){const t=makeTarget((col-4)*1.08,1.25+row*1.03,-8.75,.31);gridTargets.push(t)}
+const raycaster=new THREE.Raycaster();raycaster.far=40;const center=new THREE.Vector2(0,0);
+let mode='grid',running=false,paused=false,timeLeft=60,score=0,hits=0,shots=0,combo=0,selectedTargets=[],movingTarget=null,modeStart=0,lastSpawn=0,arms=null,armsMixer=null,armActions={},lastFire=0,reloadUntil=0,lookPointer=null,lastX=0,lastY=0,yaw=0,pitch=0;
+const clipNames={idle:'Armature|Idle',fire:'Armature|Fire',reload:'Armature|ReloadClip',hide:'Armature|Hide',unhide:'Armature|Unhide'};
+function setAnim(name){if(!armsMixer)return;const clip=arms?.userData.clips?.find(c=>c.name===clipNames[name]);if(!clip)return;const action=armsMixer.clipAction(clip);action.reset().fadeIn(.08).play();for(const a of Object.values(armActions)){if(a!==action)a.fadeOut(.08)}armActions[name]=action}
+function addArms(gltf){if(arms){camera.remove(arms);arms=null}arms=new THREE.Group();arms.add(gltf.scene);arms.position.set(.15,-.1,-.45);arms.rotation.set(0,Math.PI,0);arms.scale.setScalar(1);arms.userData.clips=gltf.animations;camera.add(arms);armsMixer=new THREE.AnimationMixer(gltf.scene);setAnim('idle');$('modelBadge').textContent='ARMS: '+gltf.animations.length+' ANIMAÇÕES'}
+$('loadArms').onclick=()=>$('modelInput').click();
+$('modelInput').onchange=async e=>{const f=e.target.files[0];if(!f)return;try{const url=URL.createObjectURL(f);const gltf=await new GLTFLoader().loadAsync(url);addArms(gltf);URL.revokeObjectURL(url);toast('ARMS.GLB CARREGADO')}catch(err){console.error(err);toast('ERRO AO CARREGAR MODELO')}};
+$('showArms').onchange=e=>{if(arms)arms.visible=e.target.checked};
+$('fov').oninput=e=>{camera.fov=Number(e.target.value);camera.updateProjectionMatrix()};
+$('sensitivity').oninput=()=>{};
+const modeInfo={grid:{name:'GRID SHOT'},flick:{name:'FLICK'},tracking:{name:'TRACKING'},speed:{name:'SPEED TAP'},precision:{name:'PRECISION'},sixshot:{name:'SIXSHOT'}};
+document.querySelectorAll('.modeCard').forEach(b=>b.onclick=()=>{document.querySelectorAll('.modeCard').forEach(x=>x.classList.remove('selected'));b.classList.add('selected');mode=b.dataset.mode});
+function activate(t){t.visible=true;t.userData.active=true;t.scale.setScalar(1);t.userData.spawn=performance.now()/1000}
+function deactivate(t){t.userData.active=false;t.visible=false}
+function clearTargets(){for(const t of targets)deactivate(t);selectedTargets=[];movingTarget=null}
+function randomPoint(){return {x:(Math.random()-.5)*8.5,y:1.2+Math.random()*4.1}}
+function spawnOne(size=.34){const p=randomPoint();const t=makeTarget(p.x,p.y,-8.7,size);activate(t);selectedTargets.push(t);return t}
+function startMode(){clearTargets();const activeGrid=gridTargets;
+ if(mode==='grid'){activeGrid.forEach(activate);selectedTargets=activeGrid.slice()}
+ if(mode==='sixshot'){for(let i=0;i<6;i++)spawnOne(.34)}
+ if(mode==='flick'||mode==='speed')spawnOne(mode==='speed'?.27:.34);
+ if(mode==='precision')spawnOne(.19);
+ if(mode==='tracking'){movingTarget=spawnOne(.42)}
+}
+function updateTargets(dt,now){if(!running||paused)return;
+ if(mode==='tracking'&&movingTarget?.userData.active){const t=movingTarget;t.position.x=Math.sin(now*1.15)*4.3;t.position.y=3+Math.sin(now*1.8)*1.25}
+ if((mode==='flick'||mode==='speed'||mode==='precision')&&selectedTargets.length===0&&now-lastSpawn>.22){spawnOne(mode==='precision'?.19:mode==='speed'?.27:.34);lastSpawn=now}
+ if(mode==='sixshot'&&selectedTargets.length===0&&now-lastSpawn>.5){for(let i=0;i<6;i++)spawnOne(.34);lastSpawn=now}
+}
+function toast(s){$('toast').textContent=s;$('toast').classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>$('toast').classList.remove('show'),550)}
+function updateHud(){$('score').textContent=String(score).padStart(4,'0');$('accuracy').textContent=(shots?Math.round(hits/shots*100):100)+'%';$('timer').textContent=Math.max(0,Math.ceil(timeLeft))}
+function hit(){const el=$('hitmarker');el.classList.add('show');clearTimeout(hit.t);hit.t=setTimeout(()=>el.classList.remove('show'),130)}
+function fire(){if(!running||paused||performance.now()<reloadUntil)return;const now=performance.now();if(now-lastFire<120)return;lastFire=now;shots++;if(armsMixer)setAnim('fire');raycaster.setFromCamera(center,camera);const candidates=[];for(const t of targets)if(t.userData.active)candidates.push(t);const hitsList=raycaster.intersectObjects(candidates,true);
+ if(hitsList.length){let obj=hitsList[0].object;while(obj.parent&&!obj.userData.active)obj=obj.parent;if(obj.userData.active){hits++;combo++;let points=mode==='precision'?150:mode==='tracking'?80:100;score+=points+Math.min(combo,10)*5;hit();const idx=selectedTargets.indexOf(obj);if(idx>=0)selectedTargets.splice(idx,1);deactivate(obj);if(mode==='tracking')movingTarget=null;if(mode==='grid'&&selectedTargets.length===0){toast('GRID CLEAR')}else if(mode==='sixshot'&&selectedTargets.length===0)toast('ROUND CLEAR');else if(mode==='flick')toast('TARGET DOWN');else if(mode==='speed')toast('NICE SHOT');else if(mode==='precision')toast('PRECISION HIT')}}
+ else{combo=0}
+ updateHud()}
+function reload(){if(!running||paused)return;reloadUntil=performance.now()+750;if(armsMixer)setAnim('reload');toast('RELOADING')}
+$('fireBtn').addEventListener('pointerdown',e=>{e.preventDefault();e.stopPropagation();fire()});
+$('reloadBtn').onclick=reload;
+$('aimBtn').onclick=()=>{yaw=0;pitch=0;camera.rotation.set(0,0,0);toast('AIM RESET')};
+function pause(){if(!running)return;paused=!paused;$('pauseBtn').classList.toggle('active',paused);$('pauseBtn').querySelector('span').textContent=paused?'RESUME':'PAUSE';toast(paused?'PAUSED':'RESUMED')}
+$('pauseBtn').onclick=pause;
+function finish(){running=false;paused=false; $('result').style.display='flex';$('rScore').textContent=score;$('rAcc').textContent=(shots?Math.round(hits/shots*100):0)+'%';$('rHits').textContent=hits;$('rShots').textContent=shots}
+function begin(){score=hits=shots=combo=0;timeLeft=Number($('duration').value);running=true;paused=false;lastSpawn=0;modeStart=performance.now()/1000;yaw=pitch=0;camera.rotation.set(0,0,0);$('menu').style.display='none';$('result').style.display='none';$('pauseBtn').classList.remove('active');$('pauseBtn').querySelector('span').textContent='PAUSE';startMode();updateHud();if(armsMixer)setAnim('idle')}
+$('startBtn').onclick=begin;$('againBtn').onclick=begin;$('menuBtn').onclick=()=>{$('result').style.display='none';$('menu').style.display='flex'};
+$('settingsBtn').onclick=()=>{$('settingsPanel').style.display=$('settingsPanel').style.display==='block'?'none':'block'};
+function pointerLook(e){if(!running||paused)return;const sens=Number($('sensitivity').value)*.0022;yaw-=e.movementX*sens;pitch-=e.movementY*sens;pitch=THREE.MathUtils.clamp(pitch,-1.15,1.15);camera.rotation.set(pitch,yaw,0)}
+renderer.domElement.addEventListener('click',e=>{if(!running||paused)return;if(innerWidth>750){if(document.pointerLockElement!==renderer.domElement)renderer.domElement.requestPointerLock?.();else fire()}});
+document.addEventListener('pointerlockchange',()=>{});
+document.addEventListener('mousemove',e=>{if(document.pointerLockElement===renderer.domElement)pointerLook(e)});
+renderer.domElement.addEventListener('pointerdown',e=>{if(innerWidth<=750&&running&&!paused){lookPointer=e.pointerId;lastX=e.clientX;lastY=e.clientY;renderer.domElement.setPointerCapture(e.pointerId)}});
+renderer.domElement.addEventListener('pointermove',e=>{if(lookPointer!==e.pointerId||!running||paused)return;const dx=e.clientX-lastX,dy=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;const sens=Number($('sensitivity').value)*.004;yaw-=dx*sens;pitch-=dy*sens;pitch=THREE.MathUtils.clamp(pitch,-1.15,1.15);camera.rotation.set(pitch,yaw,0)});
+renderer.domElement.addEventListener('pointerup',e=>{if(lookPointer===e.pointerId)lookPointer=null});
+renderer.domElement.addEventListener('contextmenu',e=>e.preventDefault());
+document.addEventListener('keydown',e=>{if(e.code==='Space'){e.preventDefault();fire()}if(e.code==='KeyR')reload();if(e.code==='Escape'&&running)pause()});
+let last=performance.now();
+function loop(now){requestAnimationFrame(loop);const dt=Math.min((now-last)/1000,.05);last=now;if(running&&!paused){timeLeft-=dt;if(timeLeft<=0){timeLeft=0;updateHud();finish()}else{updateTargets(dt,now/1000);updateHud()}}if(armsMixer)armsMixer.update(dt);renderer.render(scene,camera)}
+requestAnimationFrame(loop);
+window.addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,1.75))});
 </script>
 </body>
 </html>
